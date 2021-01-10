@@ -34,20 +34,20 @@ steps = [CustomTransform()]
 indexer_steps = [StringIndexer(inputCol=column, outputCol=f"{column}_index") for column in features]
 steps.extend(indexer_steps)
 
-pipeline = Pipeline(stages=steps)
-
-df = pipeline.fit(df).transform(df)
 
 assembler = VectorAssembler(
     inputCols=["rideable_type_index", "start_station_id_index", "member_casual_index"],
     outputCol="features")
+steps.extend([assembler])
 
-output = assembler.transform(df)
 
-(trainingData, testData) = output.randomSplit([0.7, 0.3], seed = 100)
+model_ready_data_pipeline = Pipeline(stages=steps)
+
+output = model_ready_data_pipeline.fit(df).transform(df)
+
 
 lr = LogisticRegression(featuresCol = 'features', labelCol = 'end_station_id', maxIter=20)
-
+(trainingData, testData) = output.randomSplit([0.7, 0.3], seed = 100)
 pipeline = Pipeline(stages=[lr])
 model = pipeline.fit(output)
 predictions = model.transform(testData)
