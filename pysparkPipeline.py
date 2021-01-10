@@ -20,14 +20,6 @@ class CustomTransform(Transformer):
         return df
 
 
-def feature_transforms(data_frame: DataFrame, get_columns_to_drop: list) -> DataFrame:
-    df = data_frame.drop(*get_columns_to_drop)
-    df = df.filter(df.start_station_id.isNotNull())
-    df = df.filter(df.end_station_id.isNotNull())
-    df = df.withColumn("end_station_id", df["end_station_id"].cast("int"))
-    return df
-
-
 def read_input_files(local_files: str):
     df = spark.read.csv(f'{local_files}', recursiveFileLookup=True, header=True)
     return df
